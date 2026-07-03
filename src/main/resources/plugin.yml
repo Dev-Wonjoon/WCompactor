@@ -1,0 +1,25 @@
+name: WCompactor
+version: '${version}'
+
+main: net.wcompactor.WCompactor
+api-version: '26.1'
+
+authors: [ Dev-Wonjoon ]
+
+depend:
+  - eco
+  - EcoItems
+
+commands:
+  wcompactor:
+    description: WCompactor admin command
+    usage: /wcompactor <give|reload|debugitem|compact>
+    permission: wcompactor.admin
+  compactor:
+    description: WCompactor alias
+    usage: /compactor <give|reload|debugitem|compact>
+    permission: wcompactor.admin
+
+permissions:
+  wcompactor.admin:
+    default: op

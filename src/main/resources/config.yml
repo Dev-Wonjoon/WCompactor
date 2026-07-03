@@ -1,0 +1,35 @@
+settings:
+  scan-cooldown-ticks: 4
+  max-crafts-per-scan: 16
+  compact-on-pickup: true
+  compact-on-inventory-click: true
+  compact-on-inventory-drag: true
+  compact-on-join: true
+  debug: false
+  silent: true
+  skip-when-output-does-not-fit: true
+
+gui:
+  title: "Personal Compactor"
+  rows: 3
+  recipe-slots:
+    basic: [11, 13, 15]
+    advanced: [10, 11, 12, 14, 15, 16]
+    super: [9, 10, 11, 12, 14, 15, 16, 17, 18]
+
+tiers:
+  basic:
+    slots: 3
+    fallback-material: "DROPPER"
+    display-name: "Personal Compactor 3000"
+  advanced:
+    slots: 6
+    fallback-material: "DISPENSER"
+    display-name: "Personal Compactor 4000"
+  super:
+    slots: 9
+    fallback-material: "DISPENSER"
+    display-name: "Personal Compactor 5000"
+
+experimental:
+  auto-discover-ecoitems-recipes: false

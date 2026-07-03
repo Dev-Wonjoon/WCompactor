@@ -3,10 +3,11 @@ package net.wcompactor.config
 import com.willfp.eco.core.items.Items
 import net.wcompactor.recipe.CompactorRecipe
 import net.wcompactor.recipe.CompactorTier
+import net.wcompactor.recipe.EcoRecipeFileExporter
+import net.wcompactor.recipe.RegistryRecipeExporter
 import org.bukkit.Material
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
-import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 
@@ -26,7 +27,7 @@ class CompactorConfig(
             val guiTitle = config.getString("gui.title", "Personal Compactor")!!
             val guiRows = config.getInt("gui.rows", 3).coerceIn(1, 6)
             val tiers = loadTiers(config)
-            val recipes = loadRecipes(plugin)
+            val recipes = loadRecipes(plugin, config)
 
             return CompactorConfig(
                 settings = settings,
@@ -72,10 +73,21 @@ class CompactorConfig(
             return result
         }
 
-        private fun loadRecipes(plugin: JavaPlugin): Map<String, CompactorRecipe> {
+        private fun loadRecipes(plugin: JavaPlugin, config: FileConfiguration): Map<String, CompactorRecipe> {
             val result = linkedMapOf<String, CompactorRecipe>()
             val recipesDirectory = File(plugin.dataFolder, "recipes")
             ensureRecipesDirectory(plugin, recipesDirectory)
+
+            if(config.getBoolean("experimental.auto-discover-registry-recipes", false)) {
+                RegistryRecipeExporter(plugin).exportTo(recipesDirectory)
+            }
+
+            if(config.getBoolean("experimental.auto-discover-eco-recipe-files", false)) {
+                val sourceDirectory = config.getStringList("experimental.eco-recipe-directories")
+                    .ifEmpty { listOf("EcoItems/recipes") }
+
+                EcoRecipeFileExporter(plugin).exportTo(recipesDirectory, sourceDirectory)
+            }
 
             val recipeFiles = recipesDirectory
                 .listFiles { file -> file.isFile && file.extension.equals("yml", ignoreCase = true) }
@@ -113,13 +125,8 @@ class CompactorConfig(
         }
 
         private fun ensureRecipesDirectory(plugin: JavaPlugin, recipesDirectory: File) {
-            if(!recipesDirectory.exists()) {
-                recipesDirectory.mkdirs()
-            }
-
-            val defaultRecipe = File(recipesDirectory, "enchanted_diamond.yml")
-            if(!defaultRecipe.exists()) {
-                plugin.saveResource("recipes/enchanted_diamond.yml", false)
+            if(!recipesDirectory.exists() && !recipesDirectory.mkdirs()) {
+                plugin.logger.warning("Could not create recipes directory: ${recipesDirectory.path}")
             }
         }
 

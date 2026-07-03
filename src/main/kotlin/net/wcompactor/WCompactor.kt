@@ -35,6 +35,12 @@ class WCompactor : JavaPlugin() {
         getCommand("compactor")?.setExecutor(commandExecutor)
         getCommand("compactor")?.tabCompleter = commandExecutor
 
+        server.scheduler.runTask(this, Runnable {
+            if(config.getBoolean("experimental.auto-discover-registry-recipes", false)) {
+                compactorConfig = CompactorConfig.load(this)
+                logger.info("Reloaded ${compactorConfig.recipes.size} compactor recipes after registry export.")
+            }
+        })
         logger.info("Loaded ${compactorConfig.tiers.size} compactor tiers.")
         logger.info("Loaded ${compactorConfig.recipes.size} compactor recipes.")
         logger.info("WCompactor Enabled")

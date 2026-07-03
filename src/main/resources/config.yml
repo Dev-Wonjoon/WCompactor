@@ -32,4 +32,8 @@ tiers:
     display-name: "Personal Compactor 5000"
 
 experimental:
-  auto-discover-ecoitems-recipes: false
+  auto-discover-registry-recipes: true
+  auto-discover-eco-recipe-files: true
+  eco-recipe-directories:
+    - "EcoItems/items"
+    - "EcoItems/recipes"

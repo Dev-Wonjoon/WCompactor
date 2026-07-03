@@ -8,6 +8,8 @@ authors: [ Dev-Wonjoon ]
 
 depend:
   - eco
+
+softdepend:
   - EcoItems
 
 commands:

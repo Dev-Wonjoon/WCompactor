@@ -16,7 +16,10 @@ class CompactorConfig(
     val tiers: Map<String, CompactorTier>,
     val recipes: Map<String, CompactorRecipe>,
     val guiTitle: String,
-    val guiRows: Int
+    val guiRows: Int,
+    val guiFiller: GuiItemConfig,
+    val guiEmptySlot: GuiItemConfig,
+    val guiSelectedRecipeAppendLore: List<String>
 ) {
     companion object {
         fun load(plugin: JavaPlugin): CompactorConfig {
@@ -26,6 +29,21 @@ class CompactorConfig(
             val settings = loadSettings(config)
             val guiTitle = config.getString("gui.title", "Personal Compactor")!!
             val guiRows = config.getInt("gui.rows", 3).coerceIn(1, 6)
+            val guiFiller = loadGuiItem(
+                config = config,
+                path = "gui.filler",
+                defaultMaterial = Material.BLACK_STAINED_GLASS_PANE,
+                defaultName = " ",
+                defaultLore = emptyList()
+            )
+            val guiEmptySlot = loadGuiItem(
+                config = config,
+                path = "gui.empty-slot",
+                defaultMaterial = Material.GREEN_STAINED_GLASS_PANE,
+                defaultName = "&aEmpty Compactor Slot",
+                defaultLore = listOf("&7Click with an output item sample.")
+            )
+            val guiSelectedRecipeAppendLore = config.getStringList("gui.selected-recipe.append-lore")
             val tiers = loadTiers(config)
             val recipes = loadRecipes(plugin, config)
 
@@ -34,7 +52,10 @@ class CompactorConfig(
                 tiers = tiers,
                 recipes = recipes,
                 guiTitle = guiTitle,
-                guiRows = guiRows
+                guiRows = guiRows,
+                guiFiller = guiFiller,
+                guiEmptySlot = guiEmptySlot,
+                guiSelectedRecipeAppendLore = guiSelectedRecipeAppendLore
             )
         }
 
@@ -67,10 +88,33 @@ class CompactorConfig(
                     slots = config.getInt("$path.slots", recipeSlots.size).coerceAtLeast(1),
                     recipeSlots = recipeSlots,
                     fallbackMaterial = material,
-                    displayName = config.getString("$path.display-name", tierId)!!
+                    displayName = config.getString("$path.display-name", tierId)!!,
+                    lore = config.getStringList("$path.lore").ifEmpty {
+                        listOf(
+                            "&7Automatically compacts selected items.",
+                            "&7Right-click to configure."
+                        )
+                    }
                 )
             }
             return result
+        }
+
+        private fun loadGuiItem(
+            config: FileConfiguration,
+            path: String,
+            defaultMaterial: Material,
+            defaultName: String,
+            defaultLore: List<String>
+        ): GuiItemConfig {
+            val materialName = config.getString("$path.material", defaultMaterial.name)!!
+            val material = Material.matchMaterial(materialName) ?: defaultMaterial
+
+            return GuiItemConfig(
+                material = material,
+                name = config.getString("$path.name", defaultName)!!,
+                lore = config.getStringList("$path.lore").ifEmpty { defaultLore }
+            )
         }
 
         private fun loadRecipes(plugin: JavaPlugin, config: FileConfiguration): Map<String, CompactorRecipe> {
@@ -181,3 +225,9 @@ class CompactorConfig(
         }
     }
 }
+
+data class GuiItemConfig(
+    val material: Material,
+    val name: String,
+    val lore: List<String>
+)

@@ -3,8 +3,9 @@ package net.wcompactor.gui
 import com.willfp.eco.core.items.Items
 import net.wcompactor.WCompactor
 import net.wcompactor.item.CompactorState
+import net.wcompactor.recipe.CompactorRecipe
 import org.bukkit.Bukkit
-import org.bukkit.Material
+import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
@@ -29,7 +30,7 @@ class CompactorGuiService(
             val recipeId = state.selectedRecipes.getOrNull(index)
             val recipe = recipeId?.let { plugin.compactorConfig.recipes[it] }
 
-            inventory.setItem(slot, recipe?.outputTemplate?.clone() ?: emptySlotIcon())
+            inventory.setItem(slot, recipe?.let { selectedRecipeIcon(it) } ?: emptySlotIcon(index))
         }
 
         player.openInventory(inventory)
@@ -80,9 +81,11 @@ class CompactorGuiService(
     }
 
     private fun fill(inventory: Inventory) {
-        val filler = ItemStack(Material.BLACK_STAINED_GLASS_PANE)
+        val fillerConfig = plugin.compactorConfig.guiFiller
+        val filler = ItemStack(fillerConfig.material)
         val meta = filler.itemMeta
-        meta?.setDisplayName(" ")
+        meta?.setDisplayName(colorize(fillerConfig.name))
+        meta?.lore = fillerConfig.lore.map { colorize(it) }
         filler.itemMeta = meta
 
         for(slot in 0 until inventory.size) {
@@ -90,13 +93,39 @@ class CompactorGuiService(
         }
     }
 
-    private fun emptySlotIcon(): ItemStack {
-        val item = ItemStack(Material.GREEN_STAINED_GLASS_PANE)
+    private fun emptySlotIcon(slotIndex: Int): ItemStack {
+        val emptySlot = plugin.compactorConfig.guiEmptySlot
+        val item = ItemStack(emptySlot.material)
         val meta = item.itemMeta
-        meta?.setDisplayName("Empty Compactor Slot.")
-        meta?.lore = listOf("Click with an output item sample.")
+        meta?.setDisplayName(colorize(emptySlot.name.replace("{slot}", (slotIndex + 1).toString())))
+        meta?.lore = emptySlot.lore.map { colorize(it.replace("{slot}", (slotIndex + 1).toString())) }
 
         item.itemMeta = meta
         return item
+    }
+
+    private fun selectedRecipeIcon(recipe: CompactorRecipe): ItemStack {
+        val item = recipe.outputTemplate.clone()
+        val appendLore = plugin.compactorConfig.guiSelectedRecipeAppendLore
+        if(appendLore.isEmpty()) {
+            return item
+        }
+
+        val meta = item.itemMeta ?: return item
+        val existingLore = meta.lore ?: emptyList()
+        meta.lore = existingLore + appendLore.map {
+            colorize(
+                it
+                    .replace("{recipe_id}", recipe.id)
+                    .replace("{input_amount}", recipe.inputAmount.toString())
+                    .replace("{output_amount}", recipe.outputAmount.toString())
+            )
+        }
+        item.itemMeta = meta
+        return item
+    }
+
+    private fun colorize(text: String): String {
+        return ChatColor.translateAlternateColorCodes('&', text)
     }
 }

@@ -7,5 +7,6 @@ data class CompactorTier(
     val slots: Int,
     val recipeSlots: List<Int>,
     val fallbackMaterial: Material,
-    val displayName: String
+    val displayName: String,
+    val lore: List<String>
 )

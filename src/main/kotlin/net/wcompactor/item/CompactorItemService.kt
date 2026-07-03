@@ -2,6 +2,7 @@ package net.wcompactor.item
 
 import net.wcompactor.WCompactor
 import net.wcompactor.recipe.CompactorTier
+import org.bukkit.ChatColor
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.PlayerInventory
 import org.bukkit.persistence.PersistentDataType
@@ -108,13 +109,20 @@ class CompactorItemService(
     private fun applyDisplay(item: ItemStack, tier: CompactorTier) {
         val meta = item.itemMeta ?: return
 
-        meta.setDisplayName(tier.displayName)
-        meta.lore = listOf(
-            "Automatically compacts selected items.",
-            "Right-click to configure."
-        )
+        meta.setDisplayName(colorize(tier.displayName))
+        meta.lore = tier.lore.map {
+            colorize(
+                it
+                    .replace("{tier}", tier.id)
+                    .replace("{slots}", tier.slots.toString())
+            )
+        }
 
         item.itemMeta = meta
+    }
+
+    private fun colorize(text: String): String {
+        return ChatColor.translateAlternateColorCodes('&', text)
     }
 
     private fun encodeSelectedRecipes(selectedRecipes: List<String?>): String {

@@ -12,6 +12,20 @@ settings:
 gui:
   title: "Personal Compactor"
   rows: 3
+  filler:
+    material: "BLACK_STAINED_GLASS_PANE"
+    name: " "
+    lore: []
+  empty-slot:
+    material: "GREEN_STAINED_GLASS_PANE"
+    name: "&aEmpty Compactor Slot"
+    lore:
+      - "&7Click with an output item sample."
+  selected-recipe:
+    append-lore:
+      - ""
+      - "&aSelected"
+      - "&7Recipe: &f{recipe_id}"
   recipe-slots:
     basic: [11, 13, 15]
     advanced: [10, 11, 12, 14, 15, 16]
@@ -21,15 +35,24 @@ tiers:
   basic:
     slots: 3
     fallback-material: "DROPPER"
-    display-name: "Personal Compactor 3000"
+    display-name: "&6Personal Compactor 3000"
+    lore:
+      - "&7Automatically compacts selected items."
+      - "&7Right-click to configure."
   advanced:
     slots: 6
     fallback-material: "DISPENSER"
-    display-name: "Personal Compactor 4000"
+    display-name: "&6Personal Compactor 4000"
+    lore:
+      - "&7Automatically compacts selected items."
+      - "&7Right-click to configure."
   super:
     slots: 9
     fallback-material: "DISPENSER"
-    display-name: "Personal Compactor 5000"
+    display-name: "&6Personal Compactor 5000"
+    lore:
+      - "&7Automatically compacts selected items."
+      - "&7Right-click to configure."
 
 experimental:
   auto-discover-registry-recipes: true

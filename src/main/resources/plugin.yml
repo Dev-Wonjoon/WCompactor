@@ -12,6 +12,9 @@ depend:
 softdepend:
   - EcoItems
 
+libraries:
+  - org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.4.0
+
 commands:
   wcompactor:
     description: WCompactor admin command
